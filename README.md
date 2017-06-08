@@ -1,7 +1,9 @@
 # What is this ?
+
 Easily paging in Asp.net Mvc that get data as chunks from database
 
 # Install via NuGet
+
 To install MvcPagedList, run the following command in the Package Manager Console
 ```code
 pm> Install-Package MvcPagedList
@@ -9,9 +11,9 @@ pm> Install-Package MvcPagedList
 You can also view the [package page](https://www.nuget.org/packages/MvcPagedList/) on NuGet.
 
 # How to use ?
-First refrence MvcPagedList.dll to your project.
 
-Now we need implement method that take data from database like bellow
+First install package from nuget.
+now we need to implement method that take data from database like bellow
 ``` c#
  public IEnumerable<UserOutput> Search(int page, int recordsPerPage, string term, SortBy sortBy, SortOrder sortOrder, out int pageSize, out int TotalItemCount)
         {
@@ -227,4 +229,5 @@ Add partial view with _UsersPagedList name
 ```
 
 # Screenshots
+
 ![alt text](https://github.com/hamed-shirbandi/MvcPagedList/blob/master/MvcPagedList.Example/Content/img/screenShots/Screenshot-1.png)
