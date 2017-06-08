@@ -1,15 +1,20 @@
 <?xml version="1.0"?>
+
 <package >
- <metadata>
-  <id>$id$</id>
-  <version>$version$</version>
-  <title>$title$</title>
-  <authors>$author$</authors>
-  <owners>$author$</owners>
-  <projectUrl>https://github.com/hamed-shirbandi/MvcPagedList</projectUrl>
-  <requireLicenseAcceptance>false</requireLicenseAcceptance>
-  <description>$description$</description>
-  <copyright>Copyright 2017 codeblock.ir</copyright>
-  <tags>paging mvc ajax pager pagedlist</tags>
- </metadata>
+<metadata>
+<id>$id$</id>
+
+<version>$version$</version>
+<title>$title$</title>
+<authors>$author$</authors>
+<owners>$author$</owners>
+<projectUrl>https://github.com/hamed-shirbandi/MvcPagedList</projectUrl>
+<requireLicenseAcceptance>false</requireLicenseAcceptance>
+<description>$description$</description>
+<copyright>Copyright 2017 codeblock.ir</copyright>
+<tags>paging mvc ajax pager pagedlist</tags>
+</metadata>
+<files>
+ <file src="Readme.txt" target=""/>
+</files>
 </package>
