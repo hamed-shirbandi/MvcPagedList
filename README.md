@@ -14,6 +14,7 @@ You can also view the [package page](https://www.nuget.org/packages/MvcPagedList
 
 First install package from nuget.
 now we need to implement method that take data from database like bellow
+
 ``` c#
  public IEnumerable<UserOutput> Search(int page, int recordsPerPage, string term, SortBy sortBy, SortOrder sortOrder, out int pageSize, out int TotalItemCount)
         {
