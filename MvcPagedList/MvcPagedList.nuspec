@@ -13,6 +13,7 @@
 <description>$description$</description>
 <copyright>Copyright 2017 codeblock.ir</copyright>
 <tags>paging mvc ajax pager pagedlist</tags>
+<dependencies/>
 </metadata>
 <files>
  <file src="Readme.txt" target=""/>
