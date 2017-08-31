@@ -37,7 +37,7 @@ namespace MvcPagedList
 
             GenerateNextBtn(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
 
-            wrapper.InnerHtml=ul.ToString(TagRenderMode.Normal);
+            wrapper.InnerHtml = ul.ToString(TagRenderMode.Normal);
 
             GenerateInfoArea(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
 
@@ -98,9 +98,9 @@ namespace MvcPagedList
 
             if (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.IfNeeded && !isLastPage))
             {
-               
+
                 var span = new TagBuilder("span");
-                span.InnerHtml=pagerOptions.LinkToNextPageFormat;
+                span.InnerHtml = pagerOptions.LinkToNextPageFormat;
                 var page = pagerOptions.currentPage >= pagerOptions.PageCount ? pagerOptions.PageCount : pagerOptions.currentPage + 1;
 
 
@@ -139,7 +139,7 @@ namespace MvcPagedList
 
 
                 var span = new TagBuilder("span");
-                span.InnerHtml=page.ToString();
+                span.InnerHtml = page.ToString();
 
                 var a = new TagBuilder("a");
                 a.AddCssClass("ajax-paging");
@@ -151,7 +151,7 @@ namespace MvcPagedList
                 li.InnerHtml = a.ToString(TagRenderMode.Normal);
                 ul.InnerHtml = ul.InnerHtml + li.ToString(TagRenderMode.Normal);
 
-            
+
             }
         }
 
@@ -166,7 +166,7 @@ namespace MvcPagedList
             {
 
                 var span = new TagBuilder("span");
-                span.InnerHtml=pagerOptions.LinkToPreviousPageFormat;
+                span.InnerHtml = pagerOptions.LinkToPreviousPageFormat;
 
                 var page = pagerOptions.currentPage <= 1 ? 1 : pagerOptions.currentPage - 1;
 
@@ -197,7 +197,7 @@ namespace MvcPagedList
 
                     var infoSpan = new TagBuilder("span");
                     infoSpan.AddCssClass("pull-right");
-                    infoSpan.InnerHtml=pagerOptions.CurrentLocationFormat + " " + pagerOptions.currentPage + " " + pagerOptions.PageCountFormat + " " + pagerOptions.PageCount;
+                    infoSpan.InnerHtml = pagerOptions.CurrentLocationFormat + " " + pagerOptions.currentPage + " " + pagerOptions.PageCountFormat + " " + pagerOptions.PageCount;
                     infoDiv.InnerHtml = infoSpan.ToString(TagRenderMode.Normal);
 
                 }
@@ -225,7 +225,7 @@ namespace MvcPagedList
                 }
 
                 wrapper.InnerHtml = wrapper.InnerHtml + infoDiv.ToString(TagRenderMode.Normal);
-                
+
             }
 
 
@@ -239,8 +239,10 @@ namespace MvcPagedList
         /// </summary>
         private static void MergeUrlAttribute(this TagBuilder tagBuilder, string actionName, string controllerName, object routeValues, int page)
         {
-            string values = String.Join("&", routeValues.GetType().GetProperties().Select(p => p.Name + "=" + p.GetValue(routeValues, null)));
-            tagBuilder.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?" + values + "&page=" + page);
+            string values = string.Empty;
+            if (routeValues != null)
+                values = String.Join("&", routeValues.GetType().GetProperties().Select(p => p.Name + "=" + p.GetValue(routeValues, null)));
+            tagBuilder.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?page=" + page + "&" + values);
         }
 
 
@@ -260,4 +262,4 @@ namespace MvcPagedList
 
 
 }
-    
+
