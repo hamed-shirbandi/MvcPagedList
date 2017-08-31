@@ -7,6 +7,14 @@ namespace MvcPagedList
 {
     public static class PagedList
     {
+        static bool hasNextPage;
+        static bool hasPreviousPage;
+        static bool isFirstPage;
+        static bool isLastPage;
+        static TagBuilder prevBtn;
+        static TagBuilder nextBtn;
+        static TagBuilder wrapper;
+        static TagBuilder ul;
 
 
         /// <summary>
@@ -15,127 +23,168 @@ namespace MvcPagedList
         public static MvcHtmlString Pager(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
         {
 
-            #region Init
-
-            bool hasNextPage = pagerOptions.currentPage < pagerOptions.PageCount;
-            bool hasPreviousPage = pagerOptions.currentPage > 1;
-            bool isFirstPage = pagerOptions.currentPage == 1;
-            bool isLastPage = pagerOptions.currentPage == pagerOptions.PageCount;
-
             if (pagerOptions.DisplayMode == PagedListDisplayMode.Never || (pagerOptions.DisplayMode == PagedListDisplayMode.IfNeeded && pagerOptions.PageCount <= 1))
                 return null;
 
-            string @params = String.Join("&", routeValues.GetType().GetProperties().Select(p => p.Name + "=" + p.GetValue(routeValues, null)));
+
+            InitialPager(pagerOptions);
+
+            InitialTags(pagerOptions);
+
+            GeneratePrevBtn(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+
+            GeneratePageNumbers(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+
+            GenerateNextBtn(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+
+            wrapper.InnerHtml=ul.ToString(TagRenderMode.Normal);
+
+            GenerateInfoArea(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+
+            return MvcHtmlString.Create(wrapper.ToString(TagRenderMode.Normal));
+
+        }
 
 
-            var nextBtn = new TagBuilder("a");
-            var prevBtn = new TagBuilder("a");
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void InitialTags(PagerOptions pagerOptions)
+        {
+            prevBtn = new TagBuilder("a");
             prevBtn.AddCssClass("btn btn-default");
+            prevBtn.AddCssClass("ajax-paging");
+
+            nextBtn = new TagBuilder("a");
             nextBtn.AddCssClass("btn btn-default");
-            var wrapper = new TagBuilder("nav");
+            nextBtn.AddCssClass("ajax-paging");
+
+            wrapper = new TagBuilder("nav");
             wrapper.MergeAttribute("aria-label", "Page navigation");
-            var ul = new TagBuilder("ul");
-
             wrapper.AddCssClass(pagerOptions.WrapperClasses);
+
+
+
+            ul = new TagBuilder("ul");
             ul.AddCssClass(pagerOptions.UlElementClasses);
-
-
-            #endregion
-
-            #region previous
+        }
 
 
 
-            if (pagerOptions.DisplayLinkToPreviousPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToPreviousPage == PagedListDisplayMode.IfNeeded && !isFirstPage))
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void InitialPager(PagerOptions pagerOptions)
+        {
+            hasNextPage = pagerOptions.currentPage < pagerOptions.PageCount;
+            hasPreviousPage = pagerOptions.currentPage > 1;
+            isFirstPage = pagerOptions.currentPage == 1;
+            isLastPage = pagerOptions.currentPage == pagerOptions.PageCount;
+
+        }
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void GenerateNextBtn(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        {
+
+            if (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.IfNeeded && !isLastPage))
             {
-                prevBtn.AddCssClass("ajax-paging");
-
+               
                 var span = new TagBuilder("span");
-                span.SetInnerText(pagerOptions.LinkToPreviousPageFormat);
+                span.InnerHtml=pagerOptions.LinkToNextPageFormat;
+                var page = pagerOptions.currentPage >= pagerOptions.PageCount ? pagerOptions.PageCount : pagerOptions.currentPage + 1;
 
-                var page = pagerOptions.currentPage <= 1 ? 1 : pagerOptions.currentPage - 1;
 
+                nextBtn.MergeAjaxAttribute(ajaxOptions);
 
-                foreach (var ajaxOption in ajaxOptions.ToUnobtrusiveHtmlAttributes())
-                    prevBtn.Attributes.Add(ajaxOption.Key, ajaxOption.Value.ToString());
+                nextBtn.MergeUrlAttribute(actionName, controllerName, routeValues, page);
 
-                prevBtn.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?" + @params + "&page=" + page);
-
-                prevBtn.InnerHtml = span.ToString(TagRenderMode.Normal);
+                nextBtn.InnerHtml = span.ToString(TagRenderMode.Normal);
             }
+        }
 
 
 
-            #endregion
-
-            #region numbers
 
 
-            for (int i = 1; i <= pagerOptions.PageCount; i++)
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void GeneratePageNumbers(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        {
+
+            for (int page = 1; page <= pagerOptions.PageCount; page++)
             {
                 var li = new TagBuilder("li");
                 li.AddCssClass(pagerOptions.LiElementClasses);
 
-            
-                if (i == 1 && pagerOptions.currentPage > pagerOptions.PageCount)
+                if (page == 1 && pagerOptions.currentPage > pagerOptions.PageCount)
                 {
                     li.AddCssClass("active");
                 }
-                else if (i == pagerOptions.currentPage)
+                else if (page == pagerOptions.currentPage)
                 {
                     li.AddCssClass("active");
                 }
+
+
+
+                var span = new TagBuilder("span");
+                span.InnerHtml=page.ToString();
 
                 var a = new TagBuilder("a");
                 a.AddCssClass("ajax-paging");
 
-                var span = new TagBuilder("span");
-                span.SetInnerText(i.ToString());
-
-
-
-                foreach (var ajaxOption in ajaxOptions.ToUnobtrusiveHtmlAttributes())
-                    a.Attributes.Add(ajaxOption.Key, ajaxOption.Value.ToString());
-                
-                a.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?" + @params + "&page=" + i);
-
-
+                a.MergeAjaxAttribute(ajaxOptions);
+                a.MergeUrlAttribute(actionName, controllerName, routeValues, page);
 
                 a.InnerHtml = span.ToString(TagRenderMode.Normal);
                 li.InnerHtml = a.ToString(TagRenderMode.Normal);
                 ul.InnerHtml = ul.InnerHtml + li.ToString(TagRenderMode.Normal);
+
+            
             }
+        }
 
 
 
-
-            #endregion
-
-            #region Next
-
-
-
-            if (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.IfNeeded && !isLastPage))
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void GeneratePrevBtn(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        {
+            if (pagerOptions.DisplayLinkToPreviousPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToPreviousPage == PagedListDisplayMode.IfNeeded && !isFirstPage))
             {
-                nextBtn.AddCssClass("ajax-paging");
+
                 var span = new TagBuilder("span");
-                span.SetInnerText(pagerOptions.LinkToNextPageFormat);
-                var page = pagerOptions.currentPage >= pagerOptions.PageCount ? pagerOptions.PageCount : pagerOptions.currentPage + 1;
+                span.InnerHtml=pagerOptions.LinkToPreviousPageFormat;
 
-                foreach (var ajaxOption in ajaxOptions.ToUnobtrusiveHtmlAttributes())
-                    nextBtn.Attributes.Add(ajaxOption.Key, ajaxOption.Value.ToString());
-                nextBtn.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?" + @params + "&page=" + page);
-                
+                var page = pagerOptions.currentPage <= 1 ? 1 : pagerOptions.currentPage - 1;
 
-                nextBtn.InnerHtml = span.ToString(TagRenderMode.Normal);
+
+                prevBtn.MergeAjaxAttribute(ajaxOptions);
+
+                prevBtn.MergeUrlAttribute(actionName, controllerName, routeValues, page);
+
+                prevBtn.InnerHtml = span.ToString(TagRenderMode.Normal);
             }
+        }
 
 
-            #endregion
-
-            #region Info area
-
-            wrapper.InnerHtml = ul.ToString(TagRenderMode.Normal);
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void GenerateInfoArea(string actionName, string controllerName, object routeValues, object ajaxAttributes, PagerOptions pagerOptions)
+        {
 
             if (pagerOptions.DisplayInfoArea == true)
             {
@@ -148,10 +197,12 @@ namespace MvcPagedList
 
                     var infoSpan = new TagBuilder("span");
                     infoSpan.AddCssClass("pull-right");
-                    infoSpan.SetInnerText(pagerOptions.CurrentLocationFormat + " " + pagerOptions.currentPage + " " + pagerOptions.PageCountFormat + " " + pagerOptions.PageCount);
+                    infoSpan.InnerHtml=pagerOptions.CurrentLocationFormat + " " + pagerOptions.currentPage + " " + pagerOptions.PageCountFormat + " " + pagerOptions.PageCount;
                     infoDiv.InnerHtml = infoSpan.ToString(TagRenderMode.Normal);
 
                 }
+
+
                 if (pagerOptions.DisplayTotalItemCount == true)
                 {
                     var infoSpan = new TagBuilder("span");
@@ -161,7 +212,7 @@ namespace MvcPagedList
                 }
 
 
-            
+
 
                 if (hasPreviousPage)
                 {
@@ -174,20 +225,39 @@ namespace MvcPagedList
                 }
 
                 wrapper.InnerHtml = wrapper.InnerHtml + infoDiv.ToString(TagRenderMode.Normal);
+                
             }
 
 
-
-
-
-
-            #endregion
-
-            return MvcHtmlString.Create(wrapper.ToString(TagRenderMode.Normal));
         }
 
 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void MergeUrlAttribute(this TagBuilder tagBuilder, string actionName, string controllerName, object routeValues, int page)
+        {
+            string values = String.Join("&", routeValues.GetType().GetProperties().Select(p => p.Name + "=" + p.GetValue(routeValues, null)));
+            tagBuilder.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?" + values + "&page=" + page);
+        }
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void MergeAjaxAttribute(this TagBuilder tagBuilder, AjaxOptions ajaxOptions)
+        {
+            foreach (var ajaxOption in ajaxOptions.ToUnobtrusiveHtmlAttributes())
+                tagBuilder.Attributes.Add(ajaxOption.Key, ajaxOption.Value.ToString());
+        }
     }
-    
+
+
+
 
 }
+    
