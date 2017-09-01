@@ -202,7 +202,7 @@ Add partial view with _UsersPagedList name
 ```code
 @using MvcPagedList;
 
-    @PagedList.Pager(actionName: "search", controllerName: "home",
+    @PagedList.Pager(actionName: "search", controllerName: "home", areaName:"",
     routeValues: new
     {
         term = Request.QueryString["term"],
