@@ -5,6 +5,9 @@ using System.Web.Mvc.Ajax;
 
 namespace MvcPagedList
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class PagedList
     {
         static bool hasNextPage;
@@ -20,7 +23,7 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        public static MvcHtmlString Pager(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        public static MvcHtmlString Pager(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions, string areaName = "")
         {
 
             if (pagerOptions.DisplayMode == PagedListDisplayMode.Never || (pagerOptions.DisplayMode == PagedListDisplayMode.IfNeeded && pagerOptions.PageCount <= 1))
@@ -31,15 +34,15 @@ namespace MvcPagedList
 
             InitialTags(pagerOptions);
 
-            GeneratePrevBtn(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+            GeneratePrevBtn(actionName, controllerName, areaName, routeValues, ajaxOptions, pagerOptions);
 
-            GeneratePageNumbers(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+            GeneratePageNumbers(actionName, controllerName, areaName, routeValues, ajaxOptions, pagerOptions);
 
-            GenerateNextBtn(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+            GenerateNextBtn(actionName, controllerName, areaName, routeValues, ajaxOptions, pagerOptions);
 
             wrapper.InnerHtml = ul.ToString(TagRenderMode.Normal);
 
-            GenerateInfoArea(actionName, controllerName, routeValues, ajaxOptions, pagerOptions);
+            GenerateInfoArea(pagerOptions);
 
             return MvcHtmlString.Create(wrapper.ToString(TagRenderMode.Normal));
 
@@ -93,7 +96,7 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        public static void GenerateNextBtn(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        private static void GenerateNextBtn(string actionName, string controllerName,string areaName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
         {
 
             if (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToNextPage == PagedListDisplayMode.IfNeeded && !isLastPage))
@@ -106,7 +109,7 @@ namespace MvcPagedList
 
                 nextBtn.MergeAjaxAttribute(ajaxOptions);
 
-                nextBtn.MergeUrlAttribute(actionName, controllerName, routeValues, page);
+                nextBtn.MergeUrlAttribute(actionName, controllerName,areaName, routeValues, page);
 
                 nextBtn.InnerHtml = span.ToString(TagRenderMode.Normal);
             }
@@ -119,7 +122,7 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        public static void GeneratePageNumbers(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        private static void GeneratePageNumbers(string actionName, string controllerName, string areaName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
         {
 
             for (int page = 1; page <= pagerOptions.PageCount; page++)
@@ -145,7 +148,7 @@ namespace MvcPagedList
                 a.AddCssClass("ajax-paging");
 
                 a.MergeAjaxAttribute(ajaxOptions);
-                a.MergeUrlAttribute(actionName, controllerName, routeValues, page);
+                a.MergeUrlAttribute(actionName, controllerName,areaName, routeValues, page);
 
                 a.InnerHtml = span.ToString(TagRenderMode.Normal);
                 li.InnerHtml = a.ToString(TagRenderMode.Normal);
@@ -160,7 +163,7 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        public static void GeneratePrevBtn(string actionName, string controllerName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
+        private static void GeneratePrevBtn(string actionName, string controllerName, string areaName, object routeValues, AjaxOptions ajaxOptions, PagerOptions pagerOptions)
         {
             if (pagerOptions.DisplayLinkToPreviousPage == PagedListDisplayMode.Always || (pagerOptions.DisplayLinkToPreviousPage == PagedListDisplayMode.IfNeeded && !isFirstPage))
             {
@@ -173,7 +176,7 @@ namespace MvcPagedList
 
                 prevBtn.MergeAjaxAttribute(ajaxOptions);
 
-                prevBtn.MergeUrlAttribute(actionName, controllerName, routeValues, page);
+                prevBtn.MergeUrlAttribute(actionName, controllerName,areaName, routeValues, page);
 
                 prevBtn.InnerHtml = span.ToString(TagRenderMode.Normal);
             }
@@ -183,7 +186,7 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        public static void GenerateInfoArea(string actionName, string controllerName, object routeValues, object ajaxAttributes, PagerOptions pagerOptions)
+        private static void GenerateInfoArea(PagerOptions pagerOptions)
         {
 
             if (pagerOptions.DisplayInfoArea == true)
@@ -237,12 +240,16 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        private static void MergeUrlAttribute(this TagBuilder tagBuilder, string actionName, string controllerName, object routeValues, int page)
+        private static void MergeUrlAttribute(this TagBuilder tagBuilder, string actionName, string controllerName, string areaName, object routeValues, int page)
         {
             string values = string.Empty;
             if (routeValues != null)
                 values = String.Join("&", routeValues.GetType().GetProperties().Select(p => p.Name + "=" + p.GetValue(routeValues, null)));
-            tagBuilder.MergeAttribute("href", "/" + controllerName + "/" + actionName + "?page=" + page + "&" + values);
+
+            if (!string.IsNullOrEmpty(areaName))
+                areaName = "/" + areaName;
+
+            tagBuilder.MergeAttribute("href", areaName+ "/" + controllerName + "/" + actionName + "?page=" + page + "&" + values);
         }
 
 
@@ -251,7 +258,7 @@ namespace MvcPagedList
         /// <summary>
         /// 
         /// </summary>
-        public static void MergeAjaxAttribute(this TagBuilder tagBuilder, AjaxOptions ajaxOptions)
+        private static void MergeAjaxAttribute(this TagBuilder tagBuilder, AjaxOptions ajaxOptions)
         {
             foreach (var ajaxOption in ajaxOptions.ToUnobtrusiveHtmlAttributes())
                 tagBuilder.Attributes.Add(ajaxOption.Key, ajaxOption.Value.ToString());
