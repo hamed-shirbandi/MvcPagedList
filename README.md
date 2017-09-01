@@ -12,7 +12,16 @@ You can also view the [package page](https://www.nuget.org/packages/MvcPagedList
 
 # How to use ?
 
-First install package from nuget.
+First install package from nuget And then must be sure that following style and scripts are linked to your layout.cshtml
+```code
+
+    "bootstrap": "3.3.7",
+    "jquery": "2.2.0",
+    "jquery-validation": "1.14.0",
+    "jquery-validation-unobtrusive": "3.2.6",
+    "jquery-ajax-unobtrusive": "3.2.4"
+
+```
 now we need to implement method that take data from database like bellow
 
 ``` c#
