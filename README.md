@@ -1,3 +1,6 @@
+
+# This repository will no longer supported and it moved to [MvcPagedList.Core](https://github.com/hamed-shirbandi/MvcPagedList.Core)
+
 # What is this ?
 
 Easily paging in Asp.net Mvc that get data as chunks from database
